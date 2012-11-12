@@ -266,10 +266,18 @@ public class PlaintextTestReporter {
             out.append((eval+"         ").substring(0, 9)).append(" | ");
             final StringBuilder statusColumn = new StringBuilder(24);
             if (entry.getStatus() == Status.COMPLETE_NORMAL && entry.getEvaluation() == Evaluation.PASSED) {
+                statusColumn.append("Run time: ");
                 statusColumn.append(entry.getRunTime());
                 statusColumn.append(" ms");
+            } else if (entry.getStatus() == Status.COMPLETE_NORMAL && entry.getEvaluation() == Evaluation.FAILED) {
+                statusColumn.append("Incorrect return value");
             } else if (entry.getStatus() == Status.COMPLETE_ABNORMAL && entry.getCaughtValue() != null) {
                 statusColumn.append(entry.getCaughtValue().getClass().getSimpleName());
+            } else if (entry.getStatus() == Status.TIMED_OUT) {
+                statusColumn.append(formatEnum(entry.getStatus()));
+                statusColumn.append(" > ");
+                statusColumn.append(entry.getTestCase().getTimeOut());
+                statusColumn.append(" ms");
             } else {
                 statusColumn.append(formatEnum(entry.getStatus()));
             }
