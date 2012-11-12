@@ -177,7 +177,7 @@ public class PlaintextTestReporter {
         out.append("Results: ");
         for (int ord = TestExecutionResult.Evaluation.values().length - 1; ord >= 0; ord--) {
             final TestExecutionResult.Evaluation evalType = TestExecutionResult.Evaluation.values()[ord];
-            out.append(evalType.toString());
+            out.append(formatEnum(evalType));
             out.append(": ");
             out.append(String.valueOf(overallEvals[evalType.ordinal()]));
             if (ord > 0) {
