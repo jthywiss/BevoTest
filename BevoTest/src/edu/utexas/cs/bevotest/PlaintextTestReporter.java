@@ -118,7 +118,7 @@ public class PlaintextTestReporter {
         int logEntryCount = 0;
         final String entryNumFormat = "%"+String.valueOf(log.size()).length()+"d";
         for (final TestLogEntry entry : log) {
-            if (reportOpts.contains(ReportOption.ONE_LINE)) {
+            if (reportOpts.contains(ReportOption.ONE_LINE) || reportOpts.contains(ReportOption.ONE_LINE_SHOW_STACK)) {
                 out.append(String.format(entryNumFormat, new Integer(++logEntryCount))).append(" | ");
             } else {
                 out.append(newLine);
@@ -261,7 +261,7 @@ public class PlaintextTestReporter {
      *                      <code>IOException</code>
      */
     public void reportEntry(final TestExecutionResult<?, ?> entry, final Appendable out, final Set<ReportOption> reportOpts) throws IOException {
-        if (reportOpts.contains(ReportOption.ONE_LINE)) {
+        if (reportOpts.contains(ReportOption.ONE_LINE) || reportOpts.contains(ReportOption.ONE_LINE_SHOW_STACK)) {
             final String eval = entry.isCompleteOrSkipped() ? formatEnum(entry.getEvaluation()) : "";
             out.append((eval+"         ").substring(0, 9)).append(" | ");
             final StringBuilder statusColumn = new StringBuilder(24);
@@ -283,6 +283,10 @@ public class PlaintextTestReporter {
             }
             out.append((statusColumn+"                        ").substring(0, 24)).append(" | ");
             out.append(entry.getTestCase().getDescription()).append(newLine);
+            if (entry.getCaughtValue() != null && reportOpts.contains(ReportOption.ONE_LINE_SHOW_STACK)) {
+                out.append("      ");
+                appendStackTrace(entry.getCaughtValue(), out);
+            }
         } else {
             out.append("Test case:").append(newLine);
             reportCase(entry.getTestCase(), out, reportOpts);
@@ -437,7 +441,7 @@ public class PlaintextTestReporter {
      * methods that create sets of <code>ReportOption</code>.  
      */
     public enum ReportOption {
-        ONE_LINE, FAIL_DETAIL_ONLY, NO_VALUES;
+        ONE_LINE, FAIL_DETAIL_ONLY, NO_VALUES, ONE_LINE_SHOW_STACK;
 
         /** An empty <code>EnumSet&lt;ReportOption&gt;</code> instance */
         public static final Set<ReportOption> EMPTY_SET = EnumSet.noneOf(ReportOption.class);
