@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.PropertyPermission;
 
-import sun.security.util.SecurityConstants;
-
 /**
  * An outer class wrapping the BevoTest framework.
  * <p>
@@ -1047,9 +1045,9 @@ public class BevoTest {
 
     static {
         REQUESTED_PERMISSIONS = new Permissions();
-        REQUESTED_PERMISSIONS.add(new PropertyPermission("java.class.path", SecurityConstants.PROPERTY_READ_ACTION));
-        REQUESTED_PERMISSIONS.add(new PropertyPermission("user.dir", SecurityConstants.PROPERTY_READ_ACTION));
-        REQUESTED_PERMISSIONS.add(SecurityConstants.GET_STACK_TRACE_PERMISSION);
+        REQUESTED_PERMISSIONS.add(new PropertyPermission("java.class.path", "read"));
+        REQUESTED_PERMISSIONS.add(new PropertyPermission("user.dir", "read"));
+        REQUESTED_PERMISSIONS.add(new RuntimePermission("getStackTrace"));
         REQUESTED_PERMISSIONS.add(new java.lang.management.ManagementPermission("monitor"));
         REQUESTED_PERMISSIONS.setReadOnly();
     }

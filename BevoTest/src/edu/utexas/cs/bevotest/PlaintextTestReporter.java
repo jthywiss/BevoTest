@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import sun.security.util.SecurityConstants;
 import edu.utexas.cs.bevotest.BevoTest.TestCase;
 import edu.utexas.cs.bevotest.BevoTest.TestExecutionResult;
 import edu.utexas.cs.bevotest.BevoTest.TestExecutionResult.Evaluation;
@@ -476,8 +475,8 @@ public class PlaintextTestReporter {
 
     static {
         REQUESTED_PERMISSIONS = new Permissions();
-        REQUESTED_PERMISSIONS.add(SecurityConstants.CHECK_MEMBER_ACCESS_PERMISSION);
-        REQUESTED_PERMISSIONS.add(SecurityConstants.GET_PD_PERMISSION);
+        REQUESTED_PERMISSIONS.add(new RuntimePermission("accessDeclaredMembers"));
+        REQUESTED_PERMISSIONS.add(new RuntimePermission("getProtectionDomain"));
         REQUESTED_PERMISSIONS.setReadOnly();
     }
 
