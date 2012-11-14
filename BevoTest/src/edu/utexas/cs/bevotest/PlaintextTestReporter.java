@@ -1,6 +1,7 @@
 //
 // PlaintextTestReporter.java -- Java class PlaintextTestReporter
 // Project BevoTest
+// http://www.cs.utexas.edu/~jthywiss/bevotest.shtml
 //
 // $Id$
 //
