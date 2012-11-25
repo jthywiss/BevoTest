@@ -129,7 +129,10 @@ public class BevoTest {
          * @param log  the <code>TestLog</code> in which the test results will
          *             be recorded
          * @throws InterruptedException  if the test framework thread is
-         *                               interrupted
+         *                               interrupted.  The <i>interrupted
+         *                               status</i> of the current thread is
+         *                               cleared when this exception is
+         *                               thrown.
          */
         public void run(final TestLog log) throws InterruptedException {
             try {
@@ -259,10 +262,17 @@ public class BevoTest {
          * @param testLog  the <code>TestLog</code> in which to record the
          *                 test execution results
          * @throws InterruptedException  if the test framework thread is
-         *                               interrupted
+         *                               interrupted.  The <i>interrupted
+         *                               status</i> of the current thread is
+         *                               cleared when this exception is
+         *                               thrown.
          */
         public void run(final TestLog testLog) throws InterruptedException {
             final TestExecutionResult<C, R> logEntry = new TestExecutionResult<C, R>(testLog, this);
+
+            if (Thread.interrupted()) {
+                throw new InterruptedException("test run interrupted");
+            }
 
             if (shouldSkip()) {
                 logEntry.skipped();
@@ -302,7 +312,13 @@ public class BevoTest {
             };
             /* TODO: Capture stdout, stderr, and jul logging records, too? */
             t.start();
-            t.join(getTimeOut());
+            try {
+                t.join(getTimeOut());
+            } catch (InterruptedException e) {
+                /* Interrupted while waiting for test; interrupt test and exit */
+                tg.interrupt();
+                throw e;
+            }
             ensureThreadGroupTerminated(logEntry, tg, t);
             if (!tg.isDestroyed()) {
                 tg.destroy();
@@ -385,14 +401,14 @@ public class BevoTest {
 
         protected void initiate(final TestExecutionResult<C, R> logEntry) throws InterruptedException {
             if (Thread.interrupted()) {
-                throw new InterruptedException();
+                throw new InterruptedException("test initiation interrupted");
             }
             logEntry.settingUp();
         }
 
         private static InheritableThreadLocal<TestExecutionResult<?, ?>> logEntryTL = new InheritableThreadLocal<TestExecutionResult<?, ?>>();
 
-        protected void executeTest(final TestExecutionResult<C, R> logEntry) {
+        protected void executeTest(final TestExecutionResult<C, R> logEntry) throws Throwable {
             logEntryTL.set(logEntry);
             executeTest();
         }
@@ -411,7 +427,7 @@ public class BevoTest {
          * Exceptions thrown by <code>executeTest()</code> will be recorded,
          * and the test will be considered completed.
          */
-        abstract protected void executeTest();
+        abstract protected void executeTest() throws Throwable;
 
         protected void starting(final C instanceUnderTest, final TestExecutionResult<C, R> logEntry) {
             if (instanceUnderTest == null) {
@@ -572,8 +588,7 @@ public class BevoTest {
      * A <code>TestLog</code> is a record of an execution of a
      * <code>Test</code>.  It consists of a sequence of
      * <code>TestLogEntries</code>, some test environment data, and some
-     * summary test execution data (such as start time).  A <code>TestLog</code>
-     * can produce a detailed or summary test report.
+     * summary test execution data (such as start time).
      *
      * @author  John Thywissen
      */
@@ -751,9 +766,7 @@ public class BevoTest {
      * test case on a test item.  Each <code>TestExecutionResult</code>
      * has a status (running, complete, etc...) and evaluation (pass/fail),
      * along with details of the execution.  These details include the
-     * runtime type of the test item, test results, and run time.  A
-     * <code>TestExecutionResult</code> can produce a detailed report of the
-     * test results.
+     * runtime type of the test item, test results, and run time.
      *
      * @author     John Thywissen
      * @param <C>  the Class type instance of the test item
@@ -946,6 +959,7 @@ public class BevoTest {
         }
 
         protected void caught(final Throwable t) {
+            //assert caughtValue == null;
             caughtValue = t;
             setStatus(Status.COMPLETE_ABNORMAL);
         }
