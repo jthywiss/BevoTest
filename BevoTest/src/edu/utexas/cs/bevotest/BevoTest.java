@@ -959,9 +959,11 @@ public class BevoTest {
         }
 
         protected void caught(final Throwable t) {
-            //assert caughtValue == null;
-            caughtValue = t;
-            setStatus(Status.COMPLETE_ABNORMAL);
+            if (caughtValue == null) {
+                caughtValue = t;
+                setStatus(Status.COMPLETE_ABNORMAL);
+            }
+            // silently discard subsequent exceptions
         }
 
         protected void timedOut(final StackTraceElement[] stackTrace) {
