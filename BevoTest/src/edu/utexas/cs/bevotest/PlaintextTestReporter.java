@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.utexas.cs.bevotest.BevoTest.NullTestItemException;
 import edu.utexas.cs.bevotest.BevoTest.TestCase;
 import edu.utexas.cs.bevotest.BevoTest.TestExecutionResult;
 import edu.utexas.cs.bevotest.BevoTest.TestExecutionResult.Evaluation;
@@ -284,7 +285,7 @@ public class PlaintextTestReporter {
             }
             out.append((statusColumn+"                        ").substring(0, 24)).append(" | ");
             out.append(entry.getTestCase().getDescription()).append(newLine);
-            if (entry.getCaughtValue() != null && reportOpts.contains(ReportOption.ONE_LINE_SHOW_STACK)) {
+            if (entry.getCaughtValue() != null && !(entry.getCaughtValue() instanceof NullTestItemException) && reportOpts.contains(ReportOption.ONE_LINE_SHOW_STACK)) {
                 out.append("      ");
                 appendStackTrace(entry.getCaughtValue(), out);
             }

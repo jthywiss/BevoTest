@@ -291,6 +291,7 @@ public class BevoTest {
                     }
                 }
             };
+            tg.setDaemon(true);
             final Thread t = new Thread(tg, "TestExecutionMainThread") {
                 @Override
                 public void run() {
@@ -318,10 +319,20 @@ public class BevoTest {
                 /* Interrupted while waiting for test; interrupt test and exit */
                 tg.interrupt();
                 throw e;
-            }
-            ensureThreadGroupTerminated(logEntry, tg, t);
-            if (!tg.isDestroyed()) {
-                tg.destroy();
+            } finally {
+                ensureThreadGroupTerminated(logEntry, tg, t);
+                if (!tg.isDestroyed()) {
+                    /* The ThreadGroup isn't destroyed -- a Thread won't
+                     * stop.  Mark all Threads as daemon so the JVM won't
+                     * wait for any of them at JVM exit time.
+                     */
+                    Thread[] threadList = new Thread[tg.activeCount() * 2];
+                    /* 2 here is an arbitrary fudge factor -- all of this is best effort only */
+                    tg.enumerate(threadList);
+                    for (Thread threadListElement : threadList) {
+                      threadListElement.setDaemon(true);
+                    }
+                }
             }
         }
 
@@ -431,7 +442,7 @@ public class BevoTest {
 
         protected void starting(final C instanceUnderTest, final TestExecutionResult<C, R> logEntry) {
             if (instanceUnderTest == null) {
-                throw new NullPointerException("Attempt to execute test on null test item");
+                throw new NullTestItemException("Attempt to execute test on null test item");
             }
             logEntry.processing(instanceUnderTest);
         }
@@ -443,7 +454,7 @@ public class BevoTest {
 
         protected void startingStatic(final Class<? extends C> actualClassUnderTest, final TestExecutionResult<C, R> logEntry) {
             if (actualClassUnderTest == null) {
-                throw new NullPointerException("Attempt to execute test on null test class");
+                throw new NullTestItemException("Attempt to execute test on null test class");
             }
             logEntry.processingStatic(actualClassUnderTest);
         }
@@ -1028,6 +1039,26 @@ public class BevoTest {
             NO_RESULT, FAILED, PASSED
         }
 
+    }
+
+    /**
+     * A <code>NullTestItemException</code> is a
+     * <code>NullPointerException</code> thrown by BevoTest because the item
+     * under test was null.
+     *
+     * @author  John Thywissen
+     */
+    @SuppressWarnings("serial")
+    public static class NullTestItemException extends NullPointerException {
+      /**
+       * Constructs a <code>NullTestItemException</code> with the specified 
+       * detail message. 
+       *
+       * @param   s   the detail message.
+       */
+      public NullTestItemException(String s) {
+        super(s);
+      }
     }
 
     /**
