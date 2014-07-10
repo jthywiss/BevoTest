@@ -7,7 +7,7 @@
 //
 // Created by jthywiss on Oct 27, 2012.
 //
-// Copyright (c) 2012 John A. Thywissen. All rights reserved.
+// Copyright (c) 2014 John A. Thywissen. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -314,25 +314,17 @@ public class BevoTest {
             /* TODO: Capture stdout, stderr, and jul logging records, too? */
             t.start();
             try {
-                t.join(getTimeOut());
-            } catch (InterruptedException e) {
+                /* Wait for the thread group to terminate */
+                final long maxWait = System.currentTimeMillis() + getTimeOut();
+                while (tg.activeCount() > 0 && System.currentTimeMillis() < maxWait) {
+                    Thread.sleep(10L);
+                }
+            } catch (final InterruptedException e) {
                 /* Interrupted while waiting for test; interrupt test and exit */
                 tg.interrupt();
                 throw e;
             } finally {
                 ensureThreadGroupTerminated(logEntry, tg, t);
-                if (!tg.isDestroyed()) {
-                    /* The ThreadGroup isn't destroyed -- a Thread won't
-                     * stop.  Mark all Threads as daemon so the JVM won't
-                     * wait for any of them at JVM exit time.
-                     */
-                    Thread[] threadList = new Thread[tg.activeCount() * 2];
-                    /* 2 here is an arbitrary fudge factor -- all of this is best effort only */
-                    tg.enumerate(threadList);
-                    for (Thread threadListElement : threadList) {
-                      threadListElement.setDaemon(true);
-                    }
-                }
             }
         }
 
@@ -351,7 +343,9 @@ public class BevoTest {
                 } catch (final java.security.AccessControlException e) {
                     /* Disregard and proceed */
                 }
-                timedOut(logEntry, stackTrace);
+                if (hasActiveUserThreads(testThreadGroup)) {
+                    timedOut(logEntry, stackTrace);
+                }
                 testThreadGroup.interrupt();
             }
             /* Wait politely for a while */
@@ -360,7 +354,7 @@ public class BevoTest {
                 Thread.sleep(10L);
             }
             /* If the interrupt didn't do it, try this unsafe approach */
-            if (testThreadGroup.activeCount() > 0) {
+            if (hasActiveUserThreads(testThreadGroup)) {
                 System.err.println("BevoTest: WARNING: A test procedure execution has been forcibly terminated. This may leave an invalid state for subsequent tests.  Test case description: " + getDescription());
                 try {
                     java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
@@ -392,10 +386,33 @@ public class BevoTest {
                  */
                 testThreadGroup.stop();
             }
-            if (testThreadGroup.activeCount() > 0) {
+            if (hasActiveUserThreads(testThreadGroup)) {
                 /* Give the stop a little time to propagate */
                 Thread.sleep(10L);
             }
+            if (!testThreadGroup.isDestroyed()) {
+                /* The ThreadGroup isn't destroyed -- a Thread won't
+                 * stop.  Mark all Threads as daemon so the JVM won't
+                 * wait for any of them at JVM exit time.
+                 */
+                final Thread[] threadList = new Thread[testThreadGroup.activeCount() * 2];
+                /* 2 here is an arbitrary fudge factor -- all of this is best effort only */
+                testThreadGroup.enumerate(threadList);
+                for (final Thread threadListElement : threadList) {
+                    threadListElement.setDaemon(true);
+                }
+            }
+        }
+
+        protected boolean hasActiveUserThreads(final ThreadGroup tg) {
+            final Thread[] threadList = new Thread[tg.activeCount() * 2];
+            tg.enumerate(threadList);
+            for (final Thread threadListElement : threadList) {
+                if (!threadListElement.isDaemon() && threadListElement.isAlive()) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
