@@ -1010,7 +1010,7 @@ public class BevoTest {
             } else {
                 if (returnedValueValid) {
                     setStatus(Status.COMPLETE_NORMAL);
-                    if (testCase.getExpectedReturn() == null ? testCase.getExpectedReturn() == null : testCase.getExpectedReturn().equals(returnedValue)) {
+                    if (testCase.getExpectedThrowClass() == null && (testCase.getExpectedReturn() == null ? returnedValue == null : testCase.getExpectedReturn().equals(returnedValue))) {
                         setEvaluation(Evaluation.PASSED);
                     } else {
                         setEvaluation(Evaluation.FAILED);
