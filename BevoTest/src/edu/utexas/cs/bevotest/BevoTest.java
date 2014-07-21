@@ -386,8 +386,9 @@ public class BevoTest {
                  */
                 testThreadGroup.stop();
             }
-            if (hasActiveUserThreads(testThreadGroup)) {
-                /* Give the stop a little time to propagate */
+            /* Give the stop time to propagate */
+            final long maxWait2 = System.currentTimeMillis() + 500L;
+            while (hasActiveUserThreads(testThreadGroup) && System.currentTimeMillis() < maxWait2) {
                 Thread.sleep(10L);
             }
             if (!testThreadGroup.isDestroyed()) {

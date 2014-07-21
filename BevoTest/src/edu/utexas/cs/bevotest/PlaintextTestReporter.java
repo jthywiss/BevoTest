@@ -167,9 +167,15 @@ public class PlaintextTestReporter {
                         testedClasses.put(tic, describeClass(result.getTestItemClass(), true));
                     }
                     final int[] evals = testedClassEvals.get(tic);
-                    evals[result.getEvaluation().ordinal()]++;
+                    if (result.getEvaluation() != null) {
+                        evals[result.getEvaluation().ordinal()]++;
+                    }
                 }
-                overallEvals[result.getEvaluation().ordinal()]++;
+                if (result.getEvaluation() != null) {
+                    overallEvals[result.getEvaluation().ordinal()]++;
+                } else {
+                    System.err.println("BevoTest: WARNING: Test result without evaluation not counted. Test case description: "+result.getTestCase().getDescription());
+                }
             }
         }
         out.append("TEST SUMMARY").append(newLine);
@@ -320,7 +326,7 @@ public class PlaintextTestReporter {
             if (entry.getStatus() == Status.COMPLETE_NORMAL) {
                 out.append("   Test procedure run time: ").append(String.valueOf(entry.getRunTime())).append(" ms").append(newLine);
             }
-            out.append("   Evaluation:              ").append(entry.getEvaluation().toString()).append(newLine);
+            out.append("   Evaluation:              ").append(entry.getEvaluation()!=null?entry.getEvaluation().toString():"[unevaluated]").append(newLine);
         }
     }
 
