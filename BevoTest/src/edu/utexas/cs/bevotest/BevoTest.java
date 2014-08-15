@@ -400,7 +400,7 @@ public class BevoTest {
                 /* 2 here is an arbitrary fudge factor -- all of this is best effort only */
                 testThreadGroup.enumerate(threadList);
                 for (final Thread threadListElement : threadList) {
-                    if (!threadListElement.isAlive()) {
+                    if (threadListElement != null && !threadListElement.isAlive()) {
                         /* Pretty useless, since we can't set the flag
                          * on running treads, but we'll try anyway.
                          */
