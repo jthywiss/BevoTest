@@ -331,6 +331,9 @@ public class PlaintextTestReporter {
     }
 
     protected static String formatEnum(final Enum<?> enumVal) {
+        if (enumVal == null) {
+            return "[null]";
+        }
         final String s = enumVal.toString().replace('_', ' ');
         return s.charAt(0) + s.toLowerCase().substring(1);
     }
