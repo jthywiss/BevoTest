@@ -1,18 +1,16 @@
 //
 // BevoTest.java -- Java class BevoTest
 // Project BevoTest
-// http://www.cs.utexas.edu/~jthywiss/bevotest.shtml
-//
-// $Id$
+// https://www.cs.utexas.edu/~jthywiss/bevotest.shtml
 //
 // Created by jthywiss on Oct 27, 2012.
 //
-// Copyright (c) 2014 John A. Thywissen. All rights reserved.
+// Copyright (c) 2016 John A. Thywissen. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // This software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, either express or implied. See the License
