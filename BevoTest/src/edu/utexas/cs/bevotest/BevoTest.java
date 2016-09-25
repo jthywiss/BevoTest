@@ -412,7 +412,7 @@ public class BevoTest {
             final Thread[] threadList = new Thread[tg.activeCount() * 2];
             tg.enumerate(threadList);
             for (final Thread threadListElement : threadList) {
-                if (!threadListElement.isDaemon() && threadListElement.isAlive()) {
+                if (threadListElement != null && !threadListElement.isDaemon() && threadListElement.isAlive()) {
                     return true;
                 }
             }
