@@ -31,16 +31,18 @@ Here is a file with examples of BevoTest being used: [ExampleTest.java](https://
 
 To specify a test case expecting a particular return value:
 
-    new BevoTest.TestReturns<String, Integer>(ts, String.class, "Length of String", 14, 2000L) {
-        @Override public void executeTest() {
-            // Set up:
-            final String testItem = "Test test test";
-            // Execute:
-            starting(testItem);
-            returned(testItem.length());
-            // Any tear down here
-        }
-    };
+```Java
+new BevoTest.TestReturns<String, Integer>(ts, String.class, "Length of String", 14, 2000L) {
+    @Override public void executeTest() {
+        // Set up:
+        final String testItem = "Test test test";
+        // Execute:
+        starting(testItem);
+        returned(testItem.length());
+        // Any tear down here
+    }
+};
+```
 
 The arguments to the `TestReturns` constructor are two type arguments: the type being tested and the expected value type; and five value arguments: the `Test`, the `Class` value of the type being tested, the test case description, expected return value, and timeout in milliseconds. In the body of the test procedure, there are three phases: 1) set up of the test case, 2) execution of the item being tested, and 3) tear down (clean up). The calls to `starting` and `returned` divide the phases of the test procedure.
 
