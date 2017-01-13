@@ -69,3 +69,9 @@ The `TestLog` class provides hooks for a status UI: subclass and override the th
 The framework also supplies a security policy utility class that simplifies adding permissions to the policy, without the hassle of a security policy configuration file.
 
 There is more detail in the [BevoTest JavaDoc](https://www.cs.utexas.edu/~jthywiss/bevotest-doc/index.html).
+
+## Making Timeout Handling Work Everywhere ##
+
+_Background:_ BevoTest handles test case executions that exceed the time limit by using certain Java functions that require Java Virtual Machine "safe point" checks.  Unfortunately, these checks are not inserted into loops that are considered too insignificant by the Java Virtual Machine to warrant the overhead of safe point checks.  These is mainly loops with `int` counters.  If the code under test exceeds the timeout in one of these loops, BevoTest's attempts to terminate the test will not work.  Fortunately, we now have a fix.
+
+Update to Java SE 8 Update 91 or later, and add the `-XX:+UseCountedLoopSafepoints` VM argument to your `java` command.
